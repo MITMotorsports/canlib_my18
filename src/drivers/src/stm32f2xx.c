@@ -1,7 +1,7 @@
 #include "static.h"
 
-#include "stm32f2xx_hal_can.h"
 #include <stdint.h>
+#include "stm32f2xx_hal_can.h"
 
 CAN_HandleTypeDef CanHandle;
 
@@ -11,7 +11,7 @@ HAL_StatusTypeDef CANlib_Init(uint32_t baudrate) {
   // Can change prescaler to change this
   // 2 Mbaud / prescaler = baudrate (prescaler goes from 1 to 1024)
 
-  CAN_FilterConfTypeDef  sFilterConfig;
+  CAN_FilterConfTypeDef sFilterConfig;
   static CanTxMsgTypeDef TxMessage;
   static CanRxMsgTypeDef RxMessage;
 
@@ -31,7 +31,6 @@ HAL_StatusTypeDef CANlib_Init(uint32_t baudrate) {
   CanHandle.Init.BS2       = CAN_BS2_8TQ;
   CanHandle.Init.Prescaler = 4;
 
-
   HAL_StatusTypeDef status;
 
   if ((status = HAL_CAN_Init(&CanHandle)) != HAL_OK) {
@@ -40,7 +39,6 @@ HAL_StatusTypeDef CANlib_Init(uint32_t baudrate) {
     printf("[CAN INIT] ERROR\r\n");
     return status;
   }
-
 
   // TODO: Might want to comment this out
   sFilterConfig.FilterNumber         = 0;
@@ -85,9 +83,9 @@ HAL_StatusTypeDef CANlib_TransmitFrame(Frame *frame) {
 
   if (CAN_TX_STATUS != HAL_OK) {
     // TODO handle error
-    printf("[CAN TX] ERROR: HAL_StatusTypeDef is %d\r\n",    (int) CAN_TX_STATUS);
+    printf("[CAN TX] ERROR: HAL_StatusTypeDef is %d\r\n", (int)CAN_TX_STATUS);
     printf("[CAN TX] ERROR: HAL_CAN_StateTypeDef is %d\r\n", CanHandle.State);
-    printf("[CAN TX] ERROR: ErrorCode is %d\r\n",            CanHandle.ErrorCode);
+    printf("[CAN TX] ERROR: ErrorCode is %d\r\n", CanHandle.ErrorCode);
 
     return CAN_TX_STATUS;
   }

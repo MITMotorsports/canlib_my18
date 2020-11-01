@@ -78,10 +78,13 @@ if __name__ == '__main__':
     template_env.globals["can"] = can
     template_env.globals["system"] = system
 
-    for filename in ["pack_unpack.c", "pack_unpack.h", "enum_atom.h", "send_receive.c", "structs.h", "bus.h"]:
+    for filename in ["pack_unpack.c", "send_receive.c", "structs.h", "bus.h"]:
         render_template(template_env, filename)
 
     constants.write(template_env, constants_template_path, constants_path)
     computers_h.write(template_env, system.computer, computer_h_template_path, computer_h_dir_path)
     computers_c.write(template_env, system.computer, computer_c_template_path, computer_c_dir_path)
     drivers_inc.write(template_env, system, drivers_inc_template_dir_path, drivers_inc_dir_path)
+    import os
+    os.system('clang-format -i ../src/structs.h ../src/bus.h ../src/pack_unpack.c ../src/send_receive.c')
+    os.system('clang-format -i ../src/drivers/inc/* ../src/drivers/src/*')

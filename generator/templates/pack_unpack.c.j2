@@ -6,41 +6,41 @@
 {% endfor -%}
 {%- else -%}
 {%- set name_prepends = name_prepends + [frame.name] -%}
-{%- set tot_name = '_'.join(name_prepends) -%}
-void CANlib_Pack_{{ tot_name }}(CANlib_{{ tot_name }}_T *type_in, Frame *can_out) {
+{%- set tot_name = '::'.join(name_prepends) -%}
+void {{tot_name}}::pack(Frame& can_out) {
   uint64_t bitstring = 0;
 {%- for i in range(parent_slices | length) -%}
-{%- set part_name = '_'.join(name_prepends[:i + 3]) %}
-  bitstring = INSERT(CANlib_{{ part_name }}_key, bitstring, {{ parent_slices[i].start }}, {{ parent_slices[i].length }});
+{%- set part_name = '::'.join(name_prepends[:i + 3]) %}
+  bitstring = INSERT(CANlib::{{ part_name }}_key, bitstring, {{ parent_slices[i].start }}, {{ parent_slices[i].length }});
 {% endfor -%}
 {%- set ns = namespace(length=0) -%}
 {%- for atom in frame.atom %}
-  bitstring = INSERT({%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}swap_{{ atom.type.type }}{%- endif -%}(type_in->{{ atom.name }}), bitstring, {{ atom.slice.start }}, {{ atom.slice.length }});
+  bitstring = INSERT({%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}swap_{{ atom.type.type }}{%- endif -%}({{ atom.name }}), bitstring, {{ atom.slice.start }}, {{ atom.slice.length }});
 {%- set ns.length = [ns.length, atom.slice.start + atom.slice.length] | max -%}
 {%- endfor %}
   from_bitstring(&bitstring, can_out->data);
-  can_out->id = CANlib_{{ '_'.join(name_prepends[:2]) }}_key;
-  can_out->dlc = {{ (ns.length / 8) | round(method='ceil') | int }};
-  can_out->extended = {{ bus_ext | lower }};
+  can_out.id = Canlib::{{ "::".join(name_prepends[:2]) }}_key;
+  can_out.dlc = {{ (ns.length / 8) | round(method='ceil') | int }};
+  can_out.extended = {{ bus_ext | lower }};
 }
 {%- endif %}
 {%- endmacro -%}
 
 {%- macro can_unpack_handler(frame, name_prepends) -%}
 {%- if frame.frame is defined -%}
-{% for sub_frame in frame.frame -%}
-{{ can_unpack_handler(sub_frame, name_prepends + '_' + frame.name) }}
-
-{% endfor -%}
+    {% for sub_frame in frame.frame -%}
+        {{ can_unpack_handler(sub_frame, name_prepends + [sub_frame.name]) }}
+    {% endfor -%}
 {%- else -%}
-{%- set tot_name = name_prepends + '_' + frame.name -%}
-void CANlib_Unpack_{{ tot_name }}(Frame *can_in, CANlib_{{ tot_name }}_T *type_out) {
+{%- set tot_name = "::".join(name_prepends) -%}
+Frame {{ tot_name }}::unpack() {
   uint64_t bitstring = 0;
-  to_bitstring(can_in->data, &bitstring);
+  Frame can_in;
+  to_bitstring(can_in.data, &bitstring);
 {%- for atom in frame.atom %}
   type_out->{{ atom.name }} = {% if 0 %}{% endif %}
   {%- if atom.type.isenum() -%}
-    (CANlib_{{ tot_name }}_{{ atom.name }}_T)
+    ({{ atom.name }}_T)
   {%- endif -%}
   {%- if atom.type.issigned() -%}
     SIGN(
@@ -128,6 +128,8 @@ uint64_t swap_uint64(uint64_t val) {
   return (val << 32) | (val >> 32);
 }
 
+using namespace CANlib;
+
 // Pack functions
 {% for bus in can.bus %}
 {%- for msg in bus.frame -%}
@@ -139,7 +141,7 @@ uint64_t swap_uint64(uint64_t val) {
 // Unpack functions
 {% for bus in can.bus %}
 {%- for msg in bus.frame -%}
-{{ can_unpack_handler(msg, bus.name) }}
+{{ can_unpack_handler(msg, [bus.name, msg.name]) }}
 
 {% endfor %}
 {% endfor %}

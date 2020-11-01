@@ -6,9 +6,7 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+namespace CANlib {
 
 typedef enum {
 {%- for bus in architecture.participation['name']['can'].buses -%}
@@ -21,13 +19,11 @@ typedef enum {
 } CAN_Raw_Bus_T;
 
 typedef uint32_t Time_T; // in ms
-typedef HAL_StatusTypeDef CANlib_Transmit_Error_T;
-typedef HAL_StatusTypeDef CANlib_Init_Error_T;
+typedef HAL_StatusTypeDef Transmit_Error_T;
+typedef HAL_StatusTypeDef Init_Error_T;
 
-CANlib_Transmit_Error_T CANlib_TransmitFrame(Frame *frame, CANlib_Bus_T bus);
-void CANlib_ReadFrame(Frame *frame, CANlib_Bus_T bus);
-Time_T CANlib_GetTick(void);
+Transmit_Error_T TransmitFrame(Frame& frame, Bus_T::Bus_Names_T bus);
+void ReadFrame(Frame& frame, Bus_T::Bus_Names_T bus);
+Time_T GetTick(void);
 
-#ifdef __cplusplus
-} // extern "C"
-#endif // __cplusplus
+} // CANlib

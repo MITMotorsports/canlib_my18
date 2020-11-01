@@ -20,7 +20,7 @@ void CANlib_Send_{{ bus.name }}_{{ msg_name }}(CANlib_{{ bus.name }}_{{ msg_name
 {%- endif %}
 	Frame frame;
 	CANlib_Pack_{{ bus.name }}_{{ msg_name }}(inp, &frame);
-	CANlib_TransmitFrame(&frame, {{ bus.name }});
+	TransmitFrame(&frame, {{ bus.name }});
 }
 
 void CANlib_Handle_{{ bus.name }}_{{ msg_name }}(Frame *frame) {
