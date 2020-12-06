@@ -1,0 +1,30 @@
+{%- macro key_type(num_bits) -%} uint{{ (((num_bits / 8) | round(method='ceil')) * 8) | int }}_t {%- endmacro -%}
+
+#pragma once
+
+#include "static.hpp"
+#include "bus.hpp"
+#include "structs.hpp"
+
+static uint32_t Identify_internal(const int32_t key, const Frame& frame, int l, int r, int bus_idx) {
+    for (int i = l;i <= r;++i) {
+        if (keys[bus_idx][i] == key) {
+            int left_bound = frame_id_range[bus_idx][i].first;
+            int right_bound = frame_id_range[bus_idx][i].second;
+            if (left_range <= right_range) {
+                uint64_t bitstring;
+                to_bitstring(frame.data, &bitstring);
+                return Identify_internal(EXTRACT(bitstring, left_bound, right_bound), frame, i + 1, i + 1 + frame_len[bus_idx][i], bus_idx);
+            } else {
+                return i;
+            }
+        }
+    }
+    return 0;
+}
+
+
+uint32_t CANlib::Identify(Bus_Names_T bus, const Frame& frame) {
+    const int bus_idx = static_cast<int>(bus);
+    return Identify_internal(frame.id, frame, 1, sizeof(frame_len[bus_idx]) / sizeof(uint32_t), bus_idx);
+}

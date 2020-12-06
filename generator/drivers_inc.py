@@ -19,7 +19,7 @@ def write(env, system, input_path, output_path):
     output_path.mkdir(parents=True, exist_ok=True)
 
     for template_path in input_path.glob('*'):
-        architecture_name = template_path.stem.strip('.h')
+        architecture_name = template_path.stem.strip('.hpp')
         architecture = find_architecture(system, architecture_name)
         output_file = output_path.joinpath(template_path.stem)
 

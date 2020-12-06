@@ -1,0 +1,14 @@
+#pragma once
+
+#include <stdint.h>
+#include <stdbool.h>
+
+//#include "driver.hpp"
+#include "structs.hpp"
+#include "static.hpp"
+#include "bus.hpp"
+
+namespace CANlib {
+    void update_can(void);
+    void HandleFrame(Raw_Bus_T raw_bus, Frame& frame);
+}

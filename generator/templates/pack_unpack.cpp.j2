@@ -1,28 +1,27 @@
 {%- macro can_pack_handler(frame, name_prepends, bus_ext, parent_slices = []) -%}
 {%- if frame.frame is defined -%}
-{% for sub_frame in frame.frame -%}
-{{ can_pack_handler(sub_frame, name_prepends + [frame.name], bus_ext, parent_slices + [frame.slice]) }}
-
-{% endfor -%}
+    {% for sub_frame in frame.frame -%}
+        {{ can_pack_handler(sub_frame, name_prepends + [frame.name], bus_ext, parent_slices + [frame.slice]) }}
+    {% endfor -%}
 {%- else -%}
-{%- set name_prepends = name_prepends + [frame.name] -%}
-{%- set tot_name = '::'.join(name_prepends) -%}
-void {{tot_name}}::pack(Frame& can_out) {
-  uint64_t bitstring = 0;
-{%- for i in range(parent_slices | length) -%}
-{%- set part_name = '::'.join(name_prepends[:i + 3]) %}
-  bitstring = INSERT(CANlib::{{ part_name }}_key, bitstring, {{ parent_slices[i].start }}, {{ parent_slices[i].length }});
-{% endfor -%}
-{%- set ns = namespace(length=0) -%}
-{%- for atom in frame.atom %}
-  bitstring = INSERT({%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}swap_{{ atom.type.type }}{%- endif -%}({{ atom.name }}), bitstring, {{ atom.slice.start }}, {{ atom.slice.length }});
-{%- set ns.length = [ns.length, atom.slice.start + atom.slice.length] | max -%}
-{%- endfor %}
-  from_bitstring(&bitstring, can_out->data);
-  can_out.id = Canlib::{{ "::".join(name_prepends[:2]) }}_key;
-  can_out.dlc = {{ (ns.length / 8) | round(method='ceil') | int }};
-  can_out.extended = {{ bus_ext | lower }};
-}
+    {%- set name_prepends = name_prepends + [frame.name] -%}
+    {%- set tot_name = '::'.join(name_prepends) -%}
+        void {{tot_name}}::unpack(Frame& can_out) {
+            uint64_t bitstring = 0;
+            {%- for i in range(parent_slices | length) -%}
+            {%- set part_name = '::'.join(name_prepends[:i + 3]) %}
+            bitstring = INSERT(CANlib::{{ part_name }}::key, bitstring, {{ parent_slices[i].start }}, {{ parent_slices[i].length }});
+            {% endfor -%}
+            {%- set ns = namespace(length=0) -%}
+            {%- for atom in frame.atom %}
+            bitstring = INSERT({%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}swap_{{ atom.type.type }}{%- endif -%}({{ atom.name }}), bitstring, {{ atom.slice.start }}, {{ atom.slice.length }});
+            {%- set ns.length = [ns.length, atom.slice.start + atom.slice.length] | max -%}
+            {%- endfor %}
+            from_bitstring(&bitstring, can_out.data);
+            can_out.id = CANlib::{{ "::".join(name_prepends[:2]) }}::key;
+            can_out.dlc = {{ (ns.length / 8) | round(method='ceil') | int }};
+            can_out.extended = {{ bus_ext | lower }};
+        }
 {%- endif %}
 {%- endmacro -%}
 
@@ -32,36 +31,34 @@ void {{tot_name}}::pack(Frame& can_out) {
         {{ can_unpack_handler(sub_frame, name_prepends + [sub_frame.name]) }}
     {% endfor -%}
 {%- else -%}
-{%- set tot_name = "::".join(name_prepends) -%}
-Frame {{ tot_name }}::unpack() {
-  uint64_t bitstring = 0;
-  Frame can_in;
-  to_bitstring(can_in.data, &bitstring);
-{%- for atom in frame.atom %}
-  type_out->{{ atom.name }} = {% if 0 %}{% endif %}
-  {%- if atom.type.isenum() -%}
-    ({{ atom.name }}_T)
-  {%- endif -%}
-  {%- if atom.type.issigned() -%}
-    SIGN(
-  {%- endif -%}
-  {%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}
-    swap_{{ atom.type.type }}(
-  {%- endif -%}
-  EXTRACT(bitstring, {{ atom.slice.start }}, {{ atom.slice.length }})
-  {%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}
-    )
-  {%- endif -%}
-  {%- if atom.type.issigned() -%}
-    , {{ atom.slice.length }})
-  {%- endif -%}
-  ;
-{%- endfor %}
-}
+    {%- set tot_name = "::".join(name_prepends) -%}
+    void {{ tot_name }}::pack(const Frame& can_in) {
+      uint64_t bitstring = 0;
+      to_bitstring(can_in.data, &bitstring);
+        {%- for atom in frame.atom %}
+          {{ atom.name }} = {% if 0 %}{% endif %}
+          {%- if atom.type.isenum() -%}
+          ({{ atom.name }}_T)
+          {%- endif -%}
+          {%- if atom.type.issigned() -%}
+          SIGN(
+          {%- endif -%}
+          {%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}
+          swap_{{ atom.type.type }}(
+          {%- endif -%}
+          EXTRACT(bitstring, {{ atom.slice.start }}, {{ atom.slice.length }})
+          {%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}
+          )
+          {%- endif -%}
+          {%- if atom.type.issigned() -%}
+          , {{ atom.slice.length }})
+          {%- endif -%}
+          ;
+        {%- endfor %}
+    }
 {%- endif %}
 {%- endmacro -%}
-#include "pack_unpack.h"
-#include "evil_macros.h"
+#include "structs.hpp"
 
 typedef union {
   uint8_t byte[8];
