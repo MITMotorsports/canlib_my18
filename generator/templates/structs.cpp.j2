@@ -22,6 +22,39 @@
 {%- endif -%}
 {%- endmacro -%}
 
+{%- macro get_keys(msg, msg_names) -%}
+{%- if msg.frame is defined -%}
+    {{ "::".join(msg_names) }}::key,
+    {%- for sub_frame in msg.frame -%}
+        {{ get_keys(sub_frame, msg_names + [sub_frame.name]) }}
+    {%- endfor -%}
+{%- else -%}
+     {{"::".join(msg_names)}}_T::key,
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro get_message_ranges(msg, msg_names) -%}
+{%- if msg.frame is defined -%}
+    std::make_pair({{ msg.slice.start }}, {{ msg.slice.length }}),
+    {%- for sub_frame in msg.frame -%}
+        {{ get_message_ranges(sub_frame, msg_names + [sub_frame.name]) }}
+    {%- endfor -%}
+{%- else -%}
+     std::make_pair(1, 0),
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro get_frame_ranges(msg, msg_names, cnt = 0) -%}
+{%- if msg.frame is defined -%}
+    {{ get_msg_len(msg) }},
+    {%- for sub_frame in msg.frame -%}
+        {{ get_frame_ranges(sub_frame, msg_names + [sub_frame.name], cnt + 1) }}
+    {%- endfor -%}
+{%- else -%}
+     0,
+{%- endif -%}
+{%- endmacro -%}
+
 #pragma once
 
 #include <stdint.h>
@@ -41,6 +74,25 @@ using namespace CANlib;
             {{ struct_declarations(bus, msg) }}
         {%- endfor -%}
 
+        const uint32_t keys[] = {
+            {% for msg in bus.frame -%}
+                {{ get_keys(msg, [bus.name, msg.name]) }}
+            {%- endfor -%}
+        };
+
+        const std::pair<uint32_t, uint32_t> frame_id_range[] = {
+            std::make_pair(1,0),
+            {% for msg in bus.frame -%}
+                {{ get_message_ranges(msg, [bus.name, msg.name]) }}
+            {%- endfor -%}
+        };
+
+        const uint32_t frame_len[] = {
+            {% for msg in bus.frame -%}
+                {{ get_frame_ranges(msg, [bus.name, msg.name]) }}
+            {%- endfor -%}
+        };
+
         Message_T* messages[] = {
             {%- for msg in bus.frame -%}
                 {{ get_messages(msg, [msg.name]) }}
@@ -51,10 +103,33 @@ using namespace CANlib;
 
 {% endfor %}
 
+const uint32_t* keys[] = {
+{%- for bus in can.bus -%}
+{{bus.name}}::keys,
+{%- endfor -%}
+};
+
+const std::pair<uint32_t, uint32_t>* frame_id_range[] = {
+{%- for bus in can.bus -%}
+{{bus.name}}::frame_id_range,
+{%- endfor -%}
+};
+
+const uint32_t* frame_len[] = {
+{%- for bus in can.bus -%}
+{{bus.name}}::frame_len,
+{%- endfor -%}
+};
+
+const size_t can_size[] = {
+{%- for bus in can.bus -%}
+{{ get_msg_len(bus.frame) }},
+{%- endfor -%}
+};
+
 Message_T** messages[static_cast<uint32_t>(Bus_Names_T::INVALID_NAME)] = {
 {%- for bus in can.bus -%}
 {{bus.name}}::messages,
 {%- endfor -%}
+
 };
-
-

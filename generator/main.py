@@ -15,15 +15,14 @@ import drivers_inc
 
 
 src_dir = Path('../src/')
-constants_path = src_dir.joinpath('constants.hpp')
-drivers_inc_dir_path = src_dir.joinpath('drivers/inc')
+inc_dir = Path('../src/inc/')
+drivers_inc_dir_path = src_dir.joinpath('drivers/inc/')
 computer_hpp_dir_path = src_dir.joinpath('computers/inc')
 computer_cpp_dir_path = src_dir.joinpath('computers/src')
 
 template_dir = Path('./templates/')
 computer_cpp_template_path = template_dir.joinpath('computer.cpp.j2')
 computer_hpp_template_path = template_dir.joinpath('computer.hpp.j2')
-constants_template_path = template_dir.joinpath('constants.hpp.j2')
 drivers_inc_template_dir_path = template_dir.joinpath('drivers/inc')
 
 from pint import UnitRegistry
@@ -68,14 +67,18 @@ class RaiseExtension(Extension):
 def render_template_from_to(env, input_path, output_path):
     template = env.get_template(str(input_path))
     with open(output_path, 'w') as f:
-        if output_path == src_dir.joinpath("structs.hpp"):
+        if output_path in [src_dir.joinpath("structs.hpp"), src_dir.joinpath("structs.cpp")]:
             f.write(template.render(get_ms = get_ms, get_msg_len = get_msg_len))
         else:
             f.write(template.render())
 
 
 def render_template(env, relative_path):
+#    if relative_path.endswith('hpp') or relative_path.endswith('h'):
+#        render_template_from_to(env, template_dir.joinpath(f"{relative_path}.j2"), inc_dir.joinpath(relative_path))
+#    else:
     render_template_from_to(env, template_dir.joinpath(f"{relative_path}.j2"), src_dir.joinpath(relative_path))
+
 
 
 
@@ -98,10 +101,10 @@ if __name__ == '__main__':
     for filename in ["pack_unpack.cpp", "structs.hpp", "bus.hpp", "bus.cpp", "structs.cpp"]:
         render_template(template_env, filename)
 
-#    constants.write(template_env, constants_template_path, constants_path)
-    computers_hpp.write(template_env, system.computer, computer_hpp_template_path, computer_hpp_dir_path)
-    computers_cpp.write(template_env, system.computer, computer_cpp_template_path, computer_cpp_dir_path)
-    drivers_inc.write(template_env, system, drivers_inc_template_dir_path, drivers_inc_dir_path)
+    testing = '--testing' in sys.argv 
+    computers_hpp.write(template_env, system.computer, computer_hpp_template_path, computer_hpp_dir_path, testing)
+    computers_cpp.write(template_env, system.computer, computer_cpp_template_path, computer_cpp_dir_path, testing)
+    drivers_inc.write(template_env, system, drivers_inc_template_dir_path, drivers_inc_dir_path, testing)
     import os
-    os.system('clang-format -i ../src/structs.hpp ../src/bus.cpp ../src/bus.hpp ../src/pack_unpack.cpp ../src/structs.cpp')
-    os.system('clang-format -i ../src/drivers/inc/* ../src/drivers/src/*')
+    os.system('clang-format -i ../src/inc/structs.hpp ../src/src/bus.cpp ../src/inc/bus.hpp ../src/src/pack_unpack.cpp ../src/src/structs.cpp')
+    os.system('clang-format -i ../src/inc/drivers/* ../src/src/drivers/*')

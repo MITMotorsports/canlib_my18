@@ -13,7 +13,7 @@ def find_architecture(system, template):
     return None
 
 
-def write(env, system, input_path, output_path):
+def write(env, system, input_path, output_path, testing = False):
     input_path = Path(input_path)
     output_path = Path(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -24,5 +24,6 @@ def write(env, system, input_path, output_path):
         output_file = output_path.joinpath(template_path.stem)
 
         template = env.get_template(str(template_path))
-        with open(output_file, 'w') as f:
-            f.write(template.render(architecture=architecture))
+        if (testing == (architecture_name == 'testfamily')):
+            with open(output_file, 'w') as f:
+                f.write(template.render(architecture=architecture))

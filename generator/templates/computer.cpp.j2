@@ -4,7 +4,15 @@
 
 using namespace CANlib;
 
+{% if testing %}
+using namespace {{ computer.name }};
+{% endif %}
+
+{% if testing %}
+Raw_Bus_T CANlib::{{ computer.name }}::GetRawBus(Bus_Names_T bus) {
+{% else %}
 Raw_Bus_T GetRawBus(Bus_Names_T bus) {
+{% endif %}
   switch (bus) {
 {%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
     case Bus_Names_T::{{ busnm }}:
@@ -15,7 +23,11 @@ Raw_Bus_T GetRawBus(Bus_Names_T bus) {
   }
 }
 
+{% if testing %}
+Bus_Names_T CANlib::{{ computer.name }}::GetBusName(Raw_Bus_T bus) {
+{% else %}
 Bus_Names_T GetBusName(Raw_Bus_T bus) {
+{% endif %}
 	switch (bus) {
 {%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
     case Raw_Bus_T::{{ rawnm }}:
@@ -26,20 +38,9 @@ Bus_Names_T GetBusName(Raw_Bus_T bus) {
   }
 }
 
-void HandleFrame(Bus_Names_T bus_name, const Frame& frame) {
-    if (raw_bus == Bus_Names_T::INVALID_NAME) {
-        return;
-    }
-
-    uint32_t message_idx = Identify(bus_name, frame);
-    if (message_idx > 0) {
-        messages[bus_idx][message_idx]->pack(frame);
-    }
-}
-
 {%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
 
-static void {{busnm}}::update_can() {
+void {{busnm}}::update_can() {
   Frame frame;
   ReadFrame(frame, Raw_Bus_T::{{ rawnm }});
   HandleFrame(Bus_Names_T::{{busnm}}, frame);

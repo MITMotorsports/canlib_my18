@@ -84,9 +84,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <utility>
-#include "drivers/driver.hpp"
+#include "driver.hpp"
 #include "static.hpp"
-#include "clock.h"
+#include "clock.hpp"
 
 namespace CANlib {
 
@@ -109,8 +109,6 @@ struct Message_T {
     const Clock::duration period_;
 };
 
-Message_T** messages[static_cast<uint32_t>(Bus_Names_T::INVALID_NAME)];
-
 {%- for bus in can.bus %}
 
     namespace {{ bus.name }} {
@@ -119,53 +117,10 @@ Message_T** messages[static_cast<uint32_t>(Bus_Names_T::INVALID_NAME)];
             {{ struct_declarations(bus, msg) }}
         {%- endfor %}
 
-        const uint32_t keys[] = {
-            {% for msg in bus.frame -%}
-                {{ get_keys(msg, [bus.name, msg.name]) }}
-            {%- endfor -%}
-        };
-
-        const std::pair<uint32_t, uint32_t> frame_id_range[] = {
-            std::make_pair(1,0),
-            {% for msg in bus.frame -%}
-                {{ get_message_ranges(msg, [bus.name, msg.name]) }}
-            {%- endfor -%}
-        };
-
-        const uint32_t frame_len[] = {
-            {% for msg in bus.frame -%}
-                {{ get_frame_ranges(msg, [bus.name, msg.name]) }}
-            {%- endfor -%}
-        };
-
     } // {{ bus.name }}
 
 {% endfor %}
 
-
-const uint32_t* keys[] = {
-{%- for bus in can.bus -%}
-{{bus.name}}::keys,
-{%- endfor -%}
-};
-
-const std::pair<uint32_t, uint32_t>* frame_id_range[] = {
-{%- for bus in can.bus -%}
-{{bus.name}}::frame_id_range,
-{%- endfor -%}
-};
-
-const uint32_t* frame_len[] = {
-{%- for bus in can.bus -%}
-{{bus.name}}::frame_len,
-{%- endfor -%}
-};
-
-const size_t can_size[] = {
-{%- for bus in can.bus -%}
-{{ get_msg_len(bus.frame) }},
-{%- endfor -%}
-};
 
 void to_bitstring(uint8_t in[], uint64_t *out);
 

@@ -22,7 +22,8 @@ enum class Bus_Names_T {
     INVALID_NAME,
 };
 
-uint32_t Identify(const Frame&);
+uint32_t Identify(Bus_Names_T, const Frame&);
+void HandleFrame(Bus_Names_T, const Frame&);
 
 {% for bus in can.bus %}
     namespace {{bus.name}} {
