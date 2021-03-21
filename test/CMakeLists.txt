@@ -21,13 +21,13 @@ include_directories(../src/computers/inc)
 file(GLOB_RECURSE CANLIB_SOURCES "../src/*.cpp" "../src/*.c")
 add_library(canlib SHARED ${CANLIB_SOURCES})
 target_compile_features(canlib INTERFACE cxx_strong_enums)
+target_compile_definitions(canlib PUBLIC CANLIB_ARCH_TESTFAMILY)
 
 file(GLOB_RECURSE SOURCES "./tests/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC canlib)
-target_compile_definitions(${PROJECT_NAME} PUBLIC CANLIB_ARCH_TESTFAMILY)
 
 enable_testing()
 add_test(Tests ${PROJECT_NAME})

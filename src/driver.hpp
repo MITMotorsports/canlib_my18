@@ -8,15 +8,13 @@
 
 #ifdef CANLIB_ARCH_STM32F4xx
 #include "drivers/inc/stm32f4xx.hpp"
-#endif
-
-#ifdef CANLIB_ARCH_STM32F2XX
+#elif defined(CANLIB_ARCH_STM32F2XX)
 #include "drivers/inc/stm32f2xx.hpp"
-#endif
-
-//#ifdef CANLIB_ARCH_TESTFAMILY
+#elif defined(CANLIB_ARCH_TESTFAMILY)
 #include "drivers/inc/testfamily.hpp"
-//#endif
+#else
+#error "No architecture specified!"
+#endif
 
 #include "bus.hpp"
 
