@@ -1,7 +1,8 @@
 #include <cassert>
 #include <random>
 #include <chrono>
-#include "send.hpp"
+#include "pack_unpack.hpp"
+#include "test.hpp"
 
 using namespace CANlib;
 using namespace std::chrono_literals;
@@ -41,13 +42,6 @@ extern map2::L_T L_input;
 extern map2::M_T M_input;
 extern map2::N_T N_input;
 
-std::default_random_engine generator;
-std::uniform_int_distribution<uint16_t> distribution(0,511);
-
-constexpr uint64_t get_bitmask(const int l, const int r) {
-    return !l ? ((1ULL << r) - 1) : ((1ULL << r) - (1ULL << (l - 1)));
-}
-
 #define CREATE_TEST(ID, can_idx, BITMASK) \
     static void testSend##ID() { \
          can##can_idx.clear(); \
@@ -57,7 +51,7 @@ constexpr uint64_t get_bitmask(const int l, const int r) {
              f0.data[i] = distribution(generator); \
          } \
          uint64_t bitstring0; \
-         to_bitstring(f0.data, &bitstring0); \
+         to_bitstring((uint8_t*)f0.data, &bitstring0); \
          bitstring0 &= BITMASK; \
          ID##_input.unpack(f0); \
          while (Clock::now() - starting_time <= ID##_input.period_ + 5ms) { \
@@ -67,7 +61,7 @@ constexpr uint64_t get_bitmask(const int l, const int r) {
          uint64_t bitstring1; \
          assert(can##can_idx.framesReceived() == 1); \
          Frame f1 = can##can_idx.topFrame(); \
-         to_bitstring(f1.data, &bitstring1); \
+         to_bitstring((uint8_t*)f1.data, &bitstring1); \
          bitstring1 &= BITMASK;\
          assert(bitstring0 == bitstring1); \
     } \

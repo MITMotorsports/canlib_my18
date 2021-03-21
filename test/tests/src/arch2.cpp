@@ -1,5 +1,5 @@
 #include <cassert>
-#include "arch.hpp"
+#include "test.hpp"
 
 using namespace CANlib;
 using namespace testcomp2;

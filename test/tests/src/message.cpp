@@ -1,6 +1,6 @@
-#include "message.hpp"
+#include "test.hpp"
+#include "pack_unpack.hpp"
 #include <cassert>
-#include <random>
 
 using namespace CANlib;
 
@@ -42,23 +42,16 @@ extern map2::N_T N_input;
             f0.data[i] = distribution(generator); \
         } \
         uint64_t bitstring0; \
-        to_bitstring(f0.data, &bitstring0); \
+        to_bitstring((uint8_t*)f0.data, &bitstring0); \
         bitstring0 &= BITMASK; \
         ID##_input.pack(f0); \
         Frame f1; \
         ID##_input.unpack(f1); \
         uint64_t bitstring1;\
-        to_bitstring(f1.data, &bitstring1); \
+        to_bitstring((uint8_t*)f1.data, &bitstring1); \
         assert(bitstring0 == bitstring1); \
     }
 
-
-std::default_random_engine generator;
-std::uniform_int_distribution<uint16_t> distribution(0,511);
-
-constexpr uint64_t get_bitmask(const int l, const int r) {
-    return !l ? ((1ULL << r) - 1) : ((1ULL << r) - (1ULL << (l - 1)));
-}
 
 CREATE_TEST(A, get_bitmask(7,56))
 CREATE_TEST(B, get_bitmask(5,64))

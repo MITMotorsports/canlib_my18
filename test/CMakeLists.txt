@@ -26,8 +26,8 @@ file(GLOB_RECURSE SOURCES "./tests/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} stdc++fs)
-target_compile_definitions(canlibtests PUBLIC CANLIB_ARCH=TESTFAMILY)
+target_link_libraries(${PROJECT_NAME} stdc++fs canlib)
+target_compile_definitions(canlibtests PUBLIC CANLIB_ARCH_TESTFAMILY)
 
 enable_testing()
 add_test(Tests ${PROJECT_NAME})

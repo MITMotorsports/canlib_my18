@@ -2,23 +2,22 @@
 
 // INCLUDE THIS AFTER YOUR DRIVER
 
-///**
-#ifndef CANLIB_ARCH
-#error "No architecture specified!"
+//#if !(CANLIB_ARCH_STM32F4XX || CANLIB_ARCH_STM32F2XX || CANLIB_ARCH_TESTFAMILY)
+//#error "No architecture specified!"
+//#endif
+
+#ifdef CANLIB_ARCH_STM32F4xx
+#include "drivers/inc/stm32f4xx.hpp"
 #endif
 
-#if CANLIB_ARCH == STM32F4xx
-#include "drivers/inc/stm32f4xx.hpp"
-#elif CANLIB_ARCH == STM32F2xx
+#ifdef CANLIB_ARCH_STM32F2XX
 #include "drivers/inc/stm32f2xx.hpp"
-#elif CANLIB_ARCH == TESTFAMILY
-//*/
-#include "drivers/inc/testfamily.hpp"
-///*
-#else
-#error "Architecture not supported!"
 #endif
-//*/
+
+//#ifdef CANLIB_ARCH_TESTFAMILY
+#include "drivers/inc/testfamily.hpp"
+//#endif
+
 #include "bus.hpp"
 
 namespace CANlib {

@@ -11,7 +11,7 @@ using namespace {{ computer.name }};
 {% if testing %}
 Raw_Bus_T CANlib::{{ computer.name }}::GetRawBus(Bus_Names_T bus) {
 {% else %}
-Raw_Bus_T GetRawBus(Bus_Names_T bus) {
+Raw_Bus_T CANlib::GetRawBus(Bus_Names_T bus) {
 {% endif %}
   switch (bus) {
 {%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
@@ -26,7 +26,7 @@ Raw_Bus_T GetRawBus(Bus_Names_T bus) {
 {% if testing %}
 Bus_Names_T CANlib::{{ computer.name }}::GetBusName(Raw_Bus_T bus) {
 {% else %}
-Bus_Names_T GetBusName(Raw_Bus_T bus) {
+Bus_Names_T CANlib::GetBusName(Raw_Bus_T bus) {
 {% endif %}
 	switch (bus) {
 {%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
@@ -40,14 +40,22 @@ Bus_Names_T GetBusName(Raw_Bus_T bus) {
 
 {%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
 
-void {{busnm}}::update_can() {
+{% if testing %}
+void CANlib::{{computer.name}}::{{busnm}}::update_can() {
+{% else %}
+void CANlib::{{busnm}}::update_can() {
+{% endif %}
   Frame frame;
-  ReadFrame(frame, Raw_Bus_T::{{ rawnm }});
+  ReadFrame(frame, Bus_Names_T::{{ busnm }});
   HandleFrame(Bus_Names_T::{{busnm}}, frame);
 }
 {%- endfor %}
 
-void update_can(void) {
+{% if testing %}
+void CANlib::{{computer.name}}::update_can() {
+{% else %}
+void CANlib::update_can(void) {
+{% endif %}
 {%- for busnm in computer.participation['name']['can'].subscribe.keys() %}
   {{ busnm }}::update_can();
 {%- endfor %}

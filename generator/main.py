@@ -98,7 +98,7 @@ if __name__ == '__main__':
     template_env.globals["can"] = can
     template_env.globals["system"] = system
 
-    for filename in ["pack_unpack.cpp", "structs.hpp", "bus.hpp", "bus.cpp", "structs.cpp"]:
+    for filename in ["pack_unpack.cpp", "pack_unpack.hpp", "structs.hpp", "bus.hpp", "bus.cpp", "structs.cpp"]:
         render_template(template_env, filename)
 
     testing = '--testing' in sys.argv 

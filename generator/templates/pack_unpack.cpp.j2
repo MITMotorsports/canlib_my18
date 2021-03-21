@@ -4,7 +4,7 @@
         {{ can_pack_handler(sub_frame, name_prepends + [frame.name], bus_ext, parent_slices + [frame.slice]) }}
     {% endfor -%}
 {%- else -%}
-    {%- set name_prepends = name_prepends + [frame.name] -%}
+    {%- set name_prepends = name_prepends + [frame.name + '_T'] -%}
     {%- set tot_name = '::'.join(name_prepends) -%}
         void {{tot_name}}::unpack(Frame& can_out) {
             uint64_t bitstring = 0;
@@ -14,7 +14,7 @@
             {% endfor -%}
             {%- set ns = namespace(length=0) -%}
             {%- for atom in frame.atom %}
-            bitstring = INSERT({%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}swap_{{ atom.type.type }}{%- endif -%}({{ atom.name }}), bitstring, {{ atom.slice.start }}, {{ atom.slice.length }});
+            bitstring = INSERT({%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}swap_{{ atom.type.type }}(static_cast<{{atom.type.type}}_t>({{ atom.name }})) {% else %} (static_cast<uint64_t>({{ atom.name }})) {%- endif -%}, bitstring, {{ atom.slice.start }}, {{ atom.slice.length }});
             {%- set ns.length = [ns.length, atom.slice.start + atom.slice.length] | max -%}
             {%- endfor %}
             from_bitstring(&bitstring, can_out.data);
@@ -32,9 +32,9 @@
     {% endfor -%}
 {%- else -%}
     {%- set tot_name = "::".join(name_prepends) -%}
-    void {{ tot_name }}::pack(const Frame& can_in) {
+    void {{ tot_name }}_T::pack(const Frame& can_in) {
       uint64_t bitstring = 0;
-      to_bitstring(can_in.data, &bitstring);
+      to_bitstring((uint8_t*)can_in.data, &bitstring);
         {%- for atom in frame.atom %}
           {{ atom.name }} = {% if 0 %}{% endif %}
           {%- if atom.type.isenum() -%}
@@ -59,11 +59,9 @@
 {%- endif %}
 {%- endmacro -%}
 #include "structs.hpp"
+#include "pack_unpack.hpp"
 
-typedef union {
-  uint8_t byte[8];
-  uint64_t bitstring;
-} DATA_T;
+using namespace CANlib;
 
 // utility functions
 void data_transfer(DATA_T *in, DATA_T *out) {
@@ -124,8 +122,6 @@ uint64_t swap_uint64(uint64_t val) {
         ((val >> 16) & 0x0000FFFF0000FFFFULL);
   return (val << 32) | (val >> 32);
 }
-
-using namespace CANlib;
 
 // Pack functions
 {% for bus in can.bus %}

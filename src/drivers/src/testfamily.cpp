@@ -1,3 +1,4 @@
+#ifdef CANLIB_ARCH_TESTFAMILY
 #include "static.h"
 
 #include <stdint.h>
@@ -37,9 +38,7 @@ Transmit_Error_T CANlib::TransmitFrame(const Frame &frame, Bus_Names_T bus_name)
   return false;
 }
 
-
-
-void ReadFrame(Frame &frame, Bus_Names_T bus) {
+void CANLib::ReadFrame(Frame &frame, Bus_Names_T bus) {
   Raw_Bus_T raw_bus = GetRawBus(bus);
   switch (raw_bus) {
     case CAN_1:
@@ -55,3 +54,4 @@ void ReadFrame(Frame &frame, Bus_Names_T bus) {
       return;
   }
 }
+#endif

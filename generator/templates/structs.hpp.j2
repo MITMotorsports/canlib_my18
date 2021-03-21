@@ -9,8 +9,6 @@
 
 {% else %}
     struct {{msg_name}}_T : public Message_T {
-        {{msg_name}}_T() = default;
-        ~{{msg_name}}_T() = default;
         void unpack(Frame&) override;
         void pack(const Frame&) override;
         uint32_t get_key() override {
@@ -91,8 +89,6 @@
 namespace CANlib {
 
 struct Message_T {
-    Message_T() = default;
-    ~Message_T() = default;
     virtual void unpack(Frame&) = 0;
     virtual void pack(const Frame&) = 0;
     virtual uint32_t get_key() = 0;
@@ -106,7 +102,7 @@ struct Message_T {
     };
     Clock::time_point last_sent_;
     const Bus_Names_T name_ = Bus_Names_T::INVALID_NAME;
-    const Clock::duration period_;
+    const Clock::duration period_ = std::chrono::milliseconds(0);
 };
 
 {%- for bus in can.bus %}
@@ -121,8 +117,6 @@ struct Message_T {
 
 {% endfor %}
 
-
-void to_bitstring(uint8_t in[], uint64_t *out);
 
 } // CANlib
 

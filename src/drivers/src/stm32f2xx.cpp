@@ -1,4 +1,5 @@
-#include "static.h"
+#ifdef CANLIB_ARCH_STM32F2XX
+#include "static.hpp"
 
 #include <stdint.h>
 #include "stm32f2xx_hal_can.h"
@@ -95,3 +96,4 @@ HAL_StatusTypeDef CANlib_TransmitFrame(Frame *frame) {
 
   return HAL_OK;
 }
+#endif

@@ -1,3 +1,4 @@
+#ifdef CANLIB_ARCH_STM32F4XX
 #include "static.h"
 
 #include <stdint.h>
@@ -84,3 +85,4 @@ void ReadFrame(Frame &frame, Bus_Names_T bus) {
     }
   }
 }
+#endif

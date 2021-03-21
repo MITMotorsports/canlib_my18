@@ -1,6 +1,5 @@
-#include "identify.hpp"
+#include "test.hpp"
 #include <cassert>
-#include <random>
 
 using namespace CANlib;
 
@@ -36,9 +35,6 @@ extern map2::M_T M_input;
 extern map2::N_T N_input;
 
 extern Message_T** messages[2];
-
-std::default_random_engine generator;
-std::uniform_int_distribution<int> distribution(0,511);
 
 #define CREATE_TEST0(ID, bus_idx, key) \
     static void test##ID() { \
