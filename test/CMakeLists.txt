@@ -19,15 +19,15 @@ include_directories(../src/drivers/inc)
 include_directories(../src/computers/inc)
 
 file(GLOB_RECURSE CANLIB_SOURCES "../src/*.cpp" "../src/*.c")
-add_library(canlib ${CANLIB_SOURCES})
+add_library(canlib SHARED ${CANLIB_SOURCES})
 target_compile_features(canlib INTERFACE cxx_strong_enums)
 
 file(GLOB_RECURSE SOURCES "./tests/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} stdc++fs canlib)
-target_compile_definitions(canlibtests PUBLIC CANLIB_ARCH_TESTFAMILY)
+target_link_libraries(${PROJECT_NAME} PUBLIC canlib)
+target_compile_definitions(${PROJECT_NAME} PUBLIC CANLIB_ARCH_TESTFAMILY)
 
 enable_testing()
 add_test(Tests ${PROJECT_NAME})
