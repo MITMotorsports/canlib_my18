@@ -1,14 +1,14 @@
 #include <cassert>
+#include "canlib_testcomp1.hpp"
 #include "test.hpp"
 
 using namespace CANlib;
-using namespace testcomp1;
 
 extern CAN can1;
 extern CAN can2;
 extern CAN can3;
 
-void testArch1() {
+void testArch() {
     assert(GetRawBus(Bus_Names_T::map1) == Raw_Bus_T::CAN_2);
     assert(GetRawBus(Bus_Names_T::map2) == Raw_Bus_T::CAN_3);
     assert(GetRawBus(Bus_Names_T::INVALID_NAME) == Raw_Bus_T::INVALID_BUS);
@@ -29,7 +29,7 @@ void testArch1() {
     Frame f;
     f.id = 69;
     can2.setFrameToSend(f);
-    testcomp1::map1::update_can();
+    map1_update_can();
     assert(69 == can2.topFrame().id);
     assert(0 == can1.framesReceived());
     assert(1 == can2.framesReceived());
@@ -39,7 +39,7 @@ void testArch1() {
     can3.clear();
     f.id = 69;
     can3.setFrameToSend(f);
-    testcomp1::map2::update_can();
+    map2_update_can();
     assert(69 == can3.topFrame().id);
     assert(0 == can1.framesReceived());
     assert(0 == can2.framesReceived());

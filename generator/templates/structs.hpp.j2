@@ -14,6 +14,9 @@
         uint32_t get_key() override {
             return key;
         }
+        void send() override {
+            CANlib::send(this->last_sent_, this);
+        }
         {% for atom in msg.atom %}
             {%- if atom.type.isenum() -%}
                 enum class {{ atom.name }}_T {                                                                 
@@ -36,6 +39,7 @@
             {%- endif -%}
         {% endfor %}
         const Bus_Names_T name_ = Bus_Names_T::{{ bus.name }};
+        Clock::time_point last_sent_;
         {% if msg.period %}
         const Clock::duration period_ = std::chrono::milliseconds({{ get_ms(msg.period) }});
         {% endif %}
@@ -92,18 +96,12 @@ struct Message_T {
     virtual void unpack(Frame&) = 0;
     virtual void pack(const Frame&) = 0;
     virtual uint32_t get_key() = 0;
-    void send() {
-        if (Clock::now() - last_sent_ > period_)  {
-            last_sent_ = Clock::now();
-            Frame frame;
-            pack(frame);
-            TransmitFrame(frame, name_);
-        }
-    };
-    Clock::time_point last_sent_;
-    const Bus_Names_T name_ = Bus_Names_T::INVALID_NAME;
+    virtual void send() = 0;
     const Clock::duration period_ = std::chrono::milliseconds(0);
+    const Bus_Names_T name_ = Bus_Names_T::INVALID_NAME;
 };
+
+void send(Clock::time_point &last_sent_, Message_T* msg);
 
 {%- for bus in can.bus %}
 
@@ -119,4 +117,3 @@ struct Message_T {
 
 
 } // CANlib
-

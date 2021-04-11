@@ -3,40 +3,44 @@
 #include <chrono>
 
 using namespace CANlib;
+using namespace map1;
+using namespace map2;
+using namespace J;
+using namespace CC;
 using namespace std::chrono_literals;
 
-extern map1::A_T A_input;
-extern map1::B_T B_input;
-extern map1::C_T C_input;
-extern map1::D_T D_input;
-extern map1::E_T E_input;
-extern map2::F_T F_input;
-extern map2::G_T G_input;
-extern map2::H_T H_input;
-extern map2::I_T I_input;
-extern map2::J::AA_T AA_input;
-extern map2::J::BB_T BB_input;
-extern map2::J::CC::AAA_T AAA_input;
-extern map2::J::CC::BBB_T BBB_input;
-extern map2::J::CC::CCC_T CCC_input;
-extern map2::J::CC::DDD_T DDD_input;
-extern map2::J::DD_T DD_input;
-extern map2::J::EE_T EE_input;
-extern map2::J::FF_T FF_input;
-extern map2::J::GG_T GG_input;
-extern map2::J::HH_T HH_input;
-extern map2::J::II_T II_input;
-extern map2::J::JJ_T JJ_input;
-extern map2::J::KK_T KK_input;
-extern map2::J::LL_T LL_input;
-extern map2::J::MM_T MM_input;
-extern map2::J::NN_T NN_input;
-extern map2::K_T K_input;
-extern map2::L_T L_input;
-extern map2::M_T M_input;
-extern map2::N_T N_input;
 
 void testKeys() {
+    A_T A_input;
+    B_T B_input;
+    C_T C_input;
+    D_T D_input;
+    E_T E_input;
+    F_T F_input;
+    G_T G_input;
+    H_T H_input;
+    I_T I_input;
+    AA_T AA_input;
+    BB_T BB_input;
+    AAA_T AAA_input;
+    BBB_T BBB_input;
+    CCC_T CCC_input;
+    DDD_T DDD_input;
+    DD_T DD_input;
+    EE_T EE_input;
+    FF_T FF_input;
+    GG_T GG_input;
+    HH_T HH_input;
+    II_T II_input;
+    JJ_T JJ_input;
+    KK_T KK_input;
+    LL_T LL_input;
+    MM_T MM_input;
+    NN_T NN_input;
+    K_T K_input;
+    L_T L_input;
+    M_T M_input;
+    N_T N_input;
     assert(A_input.get_key() == 0x2FF);
     assert(map1::A_T::key == 0x2FF);
     assert(B_input.get_key() == 0x305);
@@ -102,6 +106,36 @@ void testKeys() {
 }
 
 void testPeriod() {
+    A_T A_input;
+    B_T B_input;
+    C_T C_input;
+    D_T D_input;
+    E_T E_input;
+    F_T F_input;
+    G_T G_input;
+    H_T H_input;
+    I_T I_input;
+    AA_T AA_input;
+    BB_T BB_input;
+    AAA_T AAA_input;
+    BBB_T BBB_input;
+    CCC_T CCC_input;
+    DDD_T DDD_input;
+    DD_T DD_input;
+    EE_T EE_input;
+    FF_T FF_input;
+    GG_T GG_input;
+    HH_T HH_input;
+    II_T II_input;
+    JJ_T JJ_input;
+    KK_T KK_input;
+    LL_T LL_input;
+    MM_T MM_input;
+    NN_T NN_input;
+    K_T K_input;
+    L_T L_input;
+    M_T M_input;
+    N_T N_input;
     assert(A_input.period_ == 50ms);
     assert(B_input.period_ == 200ms);
     assert(C_input.period_ == 200ms);
@@ -136,6 +170,7 @@ void testPeriod() {
 
 #define CREATE_TEST(ID, bus_idx, key, msg) \
   static void testMessageType##ID() { \
+      ID##_T ID##_input;\
       Frame f; \
       ID##_input.unpack(f); \
       int idx = Identify(Bus_Names_T::map##bus_idx, f); \
@@ -206,6 +241,36 @@ void testMessageType() {
 }
 
 void testBusNames() {
+    A_T A_input;
+    B_T B_input;
+    C_T C_input;
+    D_T D_input;
+    E_T E_input;
+    F_T F_input;
+    G_T G_input;
+    H_T H_input;
+    I_T I_input;
+    AA_T AA_input;
+    BB_T BB_input;
+    AAA_T AAA_input;
+    BBB_T BBB_input;
+    CCC_T CCC_input;
+    DDD_T DDD_input;
+    DD_T DD_input;
+    EE_T EE_input;
+    FF_T FF_input;
+    GG_T GG_input;
+    HH_T HH_input;
+    II_T II_input;
+    JJ_T JJ_input;
+    KK_T KK_input;
+    LL_T LL_input;
+    MM_T MM_input;
+    NN_T NN_input;
+    K_T K_input;
+    L_T L_input;
+    M_T M_input;
+    N_T N_input;
     assert(A_input.name_ == Bus_Names_T::map1);
     assert(B_input.name_ == Bus_Names_T::map1);
     assert(C_input.name_ == Bus_Names_T::map1);

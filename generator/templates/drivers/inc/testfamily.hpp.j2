@@ -42,5 +42,7 @@ typedef bool Transmit_Error_T;
 
 Transmit_Error_T TransmitFrame(const Frame& frame, Bus_Names_T bus);
 void ReadFrame(Frame& frame, Bus_Names_T bus);
+Raw_Bus_T GetRawBus(Bus_Names_T);
+Bus_Names_T GetBusName(Raw_Bus_T);
 
 } // CANlib

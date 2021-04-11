@@ -14,11 +14,11 @@ import computers_cpp
 import drivers_inc
 
 
-src_dir = Path('../src/')
+src_dir = Path('../src/src/')
 inc_dir = Path('../src/inc/')
-drivers_inc_dir_path = src_dir.joinpath('drivers/inc/')
-computer_hpp_dir_path = src_dir.joinpath('computers/inc')
-computer_cpp_dir_path = src_dir.joinpath('computers/src')
+drivers_inc_dir_path = inc_dir.joinpath('drivers/')
+computer_hpp_dir_path = inc_dir.joinpath('computers/')
+computer_cpp_dir_path = src_dir.joinpath('computers/')
 
 template_dir = Path('./templates/')
 computer_cpp_template_path = template_dir.joinpath('computer.cpp.j2')
@@ -63,23 +63,19 @@ class RaiseExtension(Extension):
     def _raise(self, msg, caller):
         raise TemplateRuntimeError(msg)
 
-
 def render_template_from_to(env, input_path, output_path):
     template = env.get_template(str(input_path))
     with open(output_path, 'w') as f:
-        if output_path in [src_dir.joinpath("structs.hpp"), src_dir.joinpath("structs.cpp")]:
+        if output_path in [inc_dir.joinpath("structs.hpp"), src_dir.joinpath("structs.cpp")]:
             f.write(template.render(get_ms = get_ms, get_msg_len = get_msg_len))
         else:
             f.write(template.render())
 
-
 def render_template(env, relative_path):
-#    if relative_path.endswith('hpp') or relative_path.endswith('h'):
-#        render_template_from_to(env, template_dir.joinpath(f"{relative_path}.j2"), inc_dir.joinpath(relative_path))
-#    else:
-    render_template_from_to(env, template_dir.joinpath(f"{relative_path}.j2"), src_dir.joinpath(relative_path))
-
-
+    if relative_path.endswith('hpp') or relative_path.endswith('h'):
+        render_template_from_to(env, template_dir.joinpath(f"{relative_path}.j2"), inc_dir.joinpath(relative_path))
+    else:
+        render_template_from_to(env, template_dir.joinpath(f"{relative_path}.j2"), src_dir.joinpath(relative_path))
 
 
 if __name__ == '__main__':
@@ -106,5 +102,9 @@ if __name__ == '__main__':
     computers_cpp.write(template_env, system.computer, computer_cpp_template_path, computer_cpp_dir_path, testing)
     drivers_inc.write(template_env, system, drivers_inc_template_dir_path, drivers_inc_dir_path, testing)
     import os
-    os.system('clang-format -i ../src/inc/structs.hpp ../src/src/bus.cpp ../src/inc/bus.hpp ../src/src/pack_unpack.cpp ../src/src/structs.cpp')
-    os.system('clang-format -i ../src/inc/drivers/* ../src/src/drivers/*')
+    try:
+        os.system('clang-format -i ../src/inc/drivers/* ../src/src/drivers/*')
+        os.system('clang-format -i ../src/inc/*')
+        os.system('clang-format -i ../src/src/*')
+    except:
+        print('Error during clang-format, is it installed?')

@@ -7,7 +7,7 @@
     }
 
 {% else %}
-    CANlib::{{bus.name}}::{{msg_name}}_T {{msg.name}}_input;
+    {{msg.name}}_T {{msg.name}}_input;
 {% endif %}
 {%- endmacro -%}
 
@@ -62,10 +62,18 @@
 #include "bus.hpp"
 #include "structs.hpp"
 
-using namespace CANlib;
+namespace CANlib {
+
+void send(Clock::time_point &last_sent_, Message_T* msg) {
+    if (Clock::now() - last_sent_ > msg->period_)  {
+        last_sent_ = Clock::now();
+        Frame frame;
+        msg->pack(frame);
+        TransmitFrame(frame, msg->name_);
+    }
+}
 
 {%- for bus in can.bus %}
-namespace CANlib {
 namespace {{bus.name}} {
 {% for msg in bus.frame -%}
 {{ struct_declarations(bus, msg, msg.name) }}
@@ -96,36 +104,36 @@ Message_T* {{bus.name}}_messages[] = {
         {{ get_messages(msg, ['CANlib', bus.name, msg.name]) }}
     {%- endfor -%}
 };
-}
 {%- endfor -%}
 
-const uint32_t* keys[] = {
+const uint32_t* keys[static_cast<int>(Bus_Names_T::INVALID_NAME)] = {
 {%- for bus in can.bus -%}
 {{bus.name}}_keys,
 {%- endfor -%}
 };
 
-const std::pair<uint32_t, uint32_t>* frame_id_range[] = {
+const std::pair<uint32_t, uint32_t>* frame_id_range[static_cast<int>(Bus_Names_T::INVALID_NAME)] = {
 {%- for bus in can.bus -%}
 {{bus.name}}_frame_id_range,
 {%- endfor -%}
 };
 
-const uint32_t* frame_len[] = {
+const uint32_t* frame_len[static_cast<int>(Bus_Names_T::INVALID_NAME)] = {
 {%- for bus in can.bus -%}
 {{bus.name}}_frame_len,
 {%- endfor -%}
 };
 
-const size_t can_size[] = {
-{%- for bus in can.bus -%}
-{{ get_msg_len(bus.frame) }},
-{%- endfor -%}
-};
+//const size_t can_size[static_cast<int>(Bus_Names_T::INVALID_NAME)] = {
+//{%- for bus in can.bus -%}
+//{{ get_msg_len(bus.frame) }},
+//{%- endfor -%}
+//};
 
-Message_T** messages[static_cast<uint32_t>(Bus_Names_T::INVALID_NAME)] = {
+Message_T** messages[static_cast<int>(Bus_Names_T::INVALID_NAME)] = {
 {%- for bus in can.bus -%}
 {{bus.name}}_messages,
 {%- endfor -%}
 
 };
+}

@@ -1,15 +1,11 @@
 #include "canlib_{{ computer.name }}.hpp"
 #include "bus.hpp"
-#include "drivers/inc/{{ system.architecture['name'][computer.architecture].family }}.hpp"
+#include "drivers/{{ system.architecture['name'][computer.architecture].family }}.hpp"
 
 using namespace CANlib;
 
 {% if testing %}
-using namespace {{ computer.name }};
-{% endif %}
-
-{% if testing %}
-Raw_Bus_T CANlib::{{ computer.name }}::GetRawBus(Bus_Names_T bus) {
+Raw_Bus_T CANlib::GetRawBus(Bus_Names_T bus) {
 {% else %}
 Raw_Bus_T CANlib::GetRawBus(Bus_Names_T bus) {
 {% endif %}
@@ -24,7 +20,7 @@ Raw_Bus_T CANlib::GetRawBus(Bus_Names_T bus) {
 }
 
 {% if testing %}
-Bus_Names_T CANlib::{{ computer.name }}::GetBusName(Raw_Bus_T bus) {
+Bus_Names_T CANlib::GetBusName(Raw_Bus_T bus) {
 {% else %}
 Bus_Names_T CANlib::GetBusName(Raw_Bus_T bus) {
 {% endif %}
@@ -38,25 +34,23 @@ Bus_Names_T CANlib::GetBusName(Raw_Bus_T bus) {
   }
 }
 
-{%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
 
+namespace CANlib {
+{%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
 {% if testing %}
-void CANlib::{{computer.name}}::{{busnm}}::update_can() {
+void {{busnm}}_update_can() {
 {% else %}
-void CANlib::{{busnm}}::update_can() {
+static void {{busnm}}_update_can() {
 {% endif %}
   Frame frame;
   ReadFrame(frame, Bus_Names_T::{{ busnm }});
   HandleFrame(Bus_Names_T::{{busnm}}, frame);
 }
 {%- endfor %}
-
-{% if testing %}
-void CANlib::{{computer.name}}::update_can() {
-{% else %}
-void CANlib::update_can(void) {
-{% endif %}
+void update_can(void) {
 {%- for busnm in computer.participation['name']['can'].subscribe.keys() %}
-  {{ busnm }}::update_can();
+  {{ busnm }}_update_can();
 {%- endfor %}
 }
+}
+

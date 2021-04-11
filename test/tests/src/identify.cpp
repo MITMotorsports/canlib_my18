@@ -1,40 +1,15 @@
 #include "test.hpp"
 #include <cassert>
 
-using namespace CANlib;
-
-extern map1::A_T A_input;
-extern map1::B_T B_input;
-extern map1::C_T C_input;
-extern map1::D_T D_input;
-extern map1::E_T E_input;
-extern map2::F_T F_input;
-extern map2::G_T G_input;
-extern map2::H_T H_input;
-extern map2::I_T I_input;
-extern map2::J::AA_T AA_input;
-extern map2::J::BB_T BB_input;
-extern map2::J::CC::AAA_T AAA_input;
-extern map2::J::CC::BBB_T BBB_input;
-extern map2::J::CC::CCC_T CCC_input;
-extern map2::J::CC::DDD_T DDD_input;
-extern map2::J::DD_T DD_input;
-extern map2::J::EE_T EE_input;
-extern map2::J::FF_T FF_input;
-extern map2::J::GG_T GG_input;
-extern map2::J::HH_T HH_input;
-extern map2::J::II_T II_input;
-extern map2::J::JJ_T JJ_input;
-extern map2::J::KK_T KK_input;
-extern map2::J::LL_T LL_input;
-extern map2::J::MM_T MM_input;
-extern map2::J::NN_T NN_input;
-extern map2::K_T K_input;
-extern map2::L_T L_input;
-extern map2::M_T M_input;
-extern map2::N_T N_input;
-
+namespace CANlib {
 extern Message_T** messages[2];
+}
+
+using namespace CANlib;
+using namespace map1;
+using namespace map2;
+using namespace J;
+using namespace CC;
 
 #define CREATE_TEST0(ID, bus_idx, key) \
     static void test##ID() { \
@@ -46,16 +21,17 @@ extern Message_T** messages[2];
             } \
             f.id = key; \
             Message_T* msg = messages[bus_idx][Identify(Bus_Names_T::map##bus_idx, f)]; \
-            assert(msg == (&ID##_input)); \
+            assert((dynamic_cast<ID##_T*> (msg)) != nullptr); \
         } \
     }
 
 #define CREATE_TEST1(ID, bus_idx, key) \
     static void test##ID() { \
+        ID##_T ID##_input; \
         Frame f; \
         ID##_input.unpack(f); \
         Message_T* msg = messages[bus_idx][Identify(Bus_Names_T::map##bus_idx, f)]; \
-        assert(msg == (&ID##_input)); \
+        assert((dynamic_cast<ID##_T*> (msg)) != nullptr); \
     }
 
 CREATE_TEST0(A, 1, 0X2FF)

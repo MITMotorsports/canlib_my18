@@ -9,19 +9,12 @@
 #include "bus.hpp"
 
 namespace CANlib {
-    void HandleFrame(Raw_Bus_T raw_bus, Frame& frame);
-    {% if testing %}
-    namespace {{ computer.name }} {
+    {%- if testing -%} 
     {%- for busnm, rawnm in computer.participation['name']['can'].mapping.items() %}
-        namespace {{busnm}} {
-            void update_can();
-        }
+        void {{busnm}}_update_can();
     {%- endfor %}
     {% endif %}
         void update_can(void);
-        Raw_Bus_T GetRawBus(Bus_Names_T bus);
-        Bus_Names_T GetBusName(Raw_Bus_T bus);
-    {% if testing %}
-    }
-    {% endif %}
+    Raw_Bus_T GetRawBus(Bus_Names_T bus);
+    Bus_Names_T GetBusName(Raw_Bus_T bus);
 }

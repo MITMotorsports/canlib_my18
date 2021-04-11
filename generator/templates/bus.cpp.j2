@@ -4,13 +4,17 @@
 #include "bus.hpp"
 #include "structs.hpp"
 #include "pack_unpack.hpp"
+#
+
+namespace CANlib {
+extern const std::pair<uint32_t, uint32_t>* frame_id_range[static_cast<int>(Bus_Names_T::INVALID_NAME)];
+extern const uint32_t* frame_len[static_cast<int>(Bus_Names_T::INVALID_NAME)];
+extern const uint32_t* keys[static_cast<int>(Bus_Names_T::INVALID_NAME)];
+//extern const size_t can_size[static_cast<int>(Bus_Names_T::INVALID_NAME)];
+extern Message_T** messages[static_cast<int>(Bus_Names_T::INVALID_NAME)];
+}
 
 using namespace CANlib;
-
-extern std::pair<int,int>* frame_id_range[static_cast<int>(Bus_Names_T::INVALID_NAME)];
-extern int* frame_len[static_cast<int>(Bus_Names_T::INVALID_NAME)];
-extern uint32_t* keys[static_cast<int>(Bus_Names_T::INVALID_NAME)];
-extern Message_T** messages[static_cast<int>(Bus_Names_T::INVALID_NAME)];
 
 static uint32_t Identify_internal(const uint32_t key, const Frame& frame, int l, int r, int bus_idx) {
     for (int i = l;i <= r;++i) {
@@ -32,10 +36,10 @@ static uint32_t Identify_internal(const uint32_t key, const Frame& frame, int l,
 
 uint32_t CANlib::Identify(Bus_Names_T bus, const Frame& frame) {
     const int bus_idx = static_cast<int>(bus);
-    return Identify_internal(frame.id, frame, 1, sizeof(frame_len[bus_idx]) / sizeof(uint32_t), bus_idx);
+//    return Identify_internal(frame.id, frame, 1, can_size[bus_idx], bus_idx);
 }
 
-void HandleFrame(Bus_Names_T bus_name, const Frame& frame) {
+void CANlib::HandleFrame(Bus_Names_T bus_name, const Frame& frame) {
     if (bus_name == Bus_Names_T::INVALID_NAME) {
         return;
     }

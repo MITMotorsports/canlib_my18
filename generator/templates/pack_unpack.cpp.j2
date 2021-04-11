@@ -14,7 +14,7 @@
             {% endfor -%}
             {%- set ns = namespace(length=0) -%}
             {%- for atom in frame.atom %}
-            bitstring = INSERT({%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}swap_{{ atom.type.type }}(static_cast<{{atom.type.type}}_t>({{ atom.name }})) {% else %} (static_cast<uint64_t>({{ atom.name }})) {%- endif -%}, bitstring, {{ atom.slice.start }}, {{ atom.slice.length }});
+            bitstring = INSERT({%- if atom.type.endianness.islittle() and not atom.type.isbool() -%}swap_{{ atom.type.type }}(static_cast<{{atom.type.type}}_t>(this->{{ atom.name }})) {% else %} (static_cast<uint64_t>(this->{{ atom.name }})) {%- endif -%}, bitstring, {{ atom.slice.start }}, {{ atom.slice.length }});
             {%- set ns.length = [ns.length, atom.slice.start + atom.slice.length] | max -%}
             {%- endfor %}
             from_bitstring(&bitstring, can_out.data);
@@ -36,7 +36,7 @@
       uint64_t bitstring = 0;
       to_bitstring((uint8_t*)can_in.data, &bitstring);
         {%- for atom in frame.atom %}
-          {{ atom.name }} = {% if 0 %}{% endif %}
+          this->{{ atom.name }} = {% if 0 %}{% endif %}
           {%- if atom.type.isenum() -%}
           ({{ atom.name }}_T)
           {%- endif -%}

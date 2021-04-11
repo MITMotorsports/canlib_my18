@@ -1,14 +1,14 @@
 #include <cassert>
+#include "canlib_testcomp2.hpp"
 #include "test.hpp"
 
 using namespace CANlib;
-using namespace testcomp2;
 
 extern CAN can1;
 extern CAN can2;
 extern CAN can3;
 
-void testArch2() {
+void testArch() {
     assert(GetRawBus(Bus_Names_T::map1) == Raw_Bus_T::CAN_3);
     assert(GetRawBus(Bus_Names_T::map2) == Raw_Bus_T::CAN_1);
     assert(GetRawBus(Bus_Names_T::INVALID_NAME) == Raw_Bus_T::INVALID_BUS);

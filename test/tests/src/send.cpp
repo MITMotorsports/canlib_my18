@@ -5,45 +5,19 @@
 #include "test.hpp"
 
 using namespace CANlib;
+using namespace map1;
+using namespace map2;
+using namespace J;
+using namespace CC;
 using namespace std::chrono_literals;
 
 extern CAN can1;
 extern CAN can2;
 extern CAN can3;
 
-extern map1::A_T A_input;
-extern map1::B_T B_input;
-extern map1::C_T C_input;
-extern map1::D_T D_input;
-extern map1::E_T E_input;
-extern map2::F_T F_input;
-extern map2::G_T G_input;
-extern map2::H_T H_input;
-extern map2::I_T I_input;
-extern map2::J::AA_T AA_input;
-extern map2::J::BB_T BB_input;
-extern map2::J::CC::AAA_T AAA_input;
-extern map2::J::CC::BBB_T BBB_input;
-extern map2::J::CC::CCC_T CCC_input;
-extern map2::J::CC::DDD_T DDD_input;
-extern map2::J::DD_T DD_input;
-extern map2::J::EE_T EE_input;
-extern map2::J::FF_T FF_input;
-extern map2::J::GG_T GG_input;
-extern map2::J::HH_T HH_input;
-extern map2::J::II_T II_input;
-extern map2::J::JJ_T JJ_input;
-extern map2::J::KK_T KK_input;
-extern map2::J::LL_T LL_input;
-extern map2::J::MM_T MM_input;
-extern map2::J::NN_T NN_input;
-extern map2::K_T K_input;
-extern map2::L_T L_input;
-extern map2::M_T M_input;
-extern map2::N_T N_input;
-
 #define CREATE_TEST(ID, can_idx, BITMASK) \
     static void testSend##ID() { \
+         ID##_T ID##_input; \
          can##can_idx.clear(); \
          auto starting_time = Clock::now(); \
          Frame f0; \
@@ -55,9 +29,8 @@ extern map2::N_T N_input;
          bitstring0 &= BITMASK; \
          ID##_input.unpack(f0); \
          while (Clock::now() - starting_time <= ID##_input.period_ + 5ms) { \
-            ID##_input.send(); \
+            send(starting_time, &ID##_input); \
          } \
-         ID##_input.send(); \
          uint64_t bitstring1; \
          assert(can##can_idx.framesReceived() == 1); \
          Frame f1 = can##can_idx.topFrame(); \
